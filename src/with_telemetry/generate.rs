@@ -8,11 +8,7 @@ pub fn generate(
     _attr: TokenStream,
     input: TokenStream,
 ) -> Result<proc_macro::TokenStream, syn::Error> {
-    let ast: DeriveInput = syn::parse(input).unwrap();
-
-    println!("ast: {:#?}", ast);
-
-    for token in ast.into_token_stream() {
+    for token in input.into_iter() {
         println!("token: {:#?}", token);
     }
 
