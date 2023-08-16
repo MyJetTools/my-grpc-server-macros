@@ -84,7 +84,6 @@ pub fn generate(
 }
 
 fn inject_body(group: &Group) {
-    for token in group.stream() {
-        println!("token: {:#?}", token);
-    }
+    let as_str = group.to_string();
+    println!("group_as_str: {}", as_str);
 }
