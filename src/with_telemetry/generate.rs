@@ -20,6 +20,8 @@ pub fn generate(
 
     as_string.insert_str(body_start, text_to_insert.as_str());
 
+    println!("as_string: {}", as_string);
+
     let result = TokenStream::from_str(as_string.as_str()).unwrap();
 
     Ok(result)
