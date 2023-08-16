@@ -30,7 +30,7 @@ pub fn generate(
                 if !injection_is_done {
                     if let Some(fn_name) = &fn_name {
                         if let Delimiter::Brace = group.delimiter() {
-                            inject_body(group);
+                            inject_body(fn_name, group);
 
                             //println!("Group: {}", group_as_text);
 
@@ -83,7 +83,27 @@ pub fn generate(
     Ok(result.into())
 }
 
-fn inject_body(group: &Group) {
-    let as_str = group.to_string();
+fn inject_body(fn_name: &str, group: &Group) {
+    let mut as_str = group.to_string();
     println!("group_as_str: {}", as_str);
+
+    let index = as_str.find("let request = request.into_inner()");
+
+    if index.is_none() {
+        panic!("Could not find 'let request = request.into_inner()' in fn body");
+    }
+
+    let index = index.unwrap();
+
+    let to_inject = quote::quote! {
+        let my_telemetry = my_grpc_extensions::get_telemetry(
+            &request.metadata(),
+            request.remote_addr(),
+            #fn_name,
+        );
+    };
+
+    as_str.insert_str(index, to_inject.to_string().as_str());
+
+    println!("after injection: {}", as_str);
 }
