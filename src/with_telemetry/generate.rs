@@ -13,14 +13,16 @@ pub fn generate(
     for token in input.into_iter() {
         match &token {
             proc_macro::TokenTree::Ident(ident) => {
+                let ident_string = ident.to_string();
                 if !injection_is_done {
                     if fn_is_engaged {
-                        fn_name = Some(ident.to_string());
+                        fn_name = Some(ident_string.clone());
                         fn_is_engaged = false;
-                    } else if ident.to_string().as_str() == "fn" {
+                    } else if ident_string.as_str() == "fn" {
                         fn_is_engaged = true;
-                    } else if let Some(fn_name) = &fn_name {
-                        if ident.to_string().as_str() == "{" {
+                    }
+                    if let Some(fn_name) = &fn_name {
+                        if ident_string.as_str() == "{" {
                             result.push(quote::quote! {
                                 let my_telemetry = my_grpc_extensions::get_telemetry(
                                     &request.metadata(),
