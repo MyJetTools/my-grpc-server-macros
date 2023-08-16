@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use proc_macro::Delimiter;
 use proc_macro::Group;
 use proc_macro::TokenStream;
@@ -30,20 +32,10 @@ pub fn generate(
                 if !injection_is_done {
                     if let Some(fn_name) = &fn_name {
                         if let Delimiter::Brace = group.delimiter() {
-                            inject_body(fn_name, group);
-
-                            //println!("Group: {}", group_as_text);
-
-                            /*
-                            result.push(quote::quote! {
-                                let my_telemetry = my_grpc_extensions::get_telemetry(
-                                    &request.metadata(),
-                                    request.remote_addr(),
-                                    #fn_name,
-                                );
-                            });
-                             */
+                            let token_stream = inject_body(fn_name, group);
+                            result.push(token_stream);
                             injection_is_done = true;
+                            continue;
                         }
                     }
                 }
@@ -83,9 +75,8 @@ pub fn generate(
     Ok(result.into())
 }
 
-fn inject_body(fn_name: &str, group: &Group) {
+fn inject_body(fn_name: &str, group: &Group) -> proc_macro2::TokenStream {
     let mut as_str = group.to_string();
-    println!("group_as_str: {}", as_str);
 
     let index = as_str.find("let request = request.into_inner()");
 
@@ -105,5 +96,11 @@ fn inject_body(fn_name: &str, group: &Group) {
 
     as_str.insert_str(index, to_inject.to_string().as_str());
 
-    println!("after injection: {}", as_str);
+    match proc_macro2::TokenStream::from_str(as_str.as_str()) {
+        Ok(token_stream) => token_stream,
+        Err(_) => panic!(
+            "Somehow we did inject telemetry line wrong way. After Injection: {}",
+            as_str
+        ),
+    }
 }
