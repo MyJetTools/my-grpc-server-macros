@@ -8,15 +8,29 @@ pub fn generate(
     _attr: TokenStream,
     input: TokenStream,
 ) -> Result<proc_macro::TokenStream, syn::Error> {
-    let mut i = 0;
+    let mut result = Vec::new();
+
+    let mut fn_is_engaged = false;
+    let mut fn_name = None;
+
     for token in input.into_iter() {
-        println!("token: {:#?}", token);
-        if i == 10 {
-            break;
+        match token {
+            proc_macro::TokenTree::Ident(ident) => {
+                if fn_is_engaged {
+                    fn_name = Some(ident.to_string());
+                    fn_is_engaged = false;
+                }
+                if ident.to_string().as_str() == "fn" {
+                    fn_is_engaged = true;
+                }
+            }
+            _ => {}
         }
 
-        i += 1;
+        result.push(token);
     }
+
+    println!("fn_name: {:?}", fn_name);
 
     /*
     let fn_name = extract_fn_name(as_string.as_str());
@@ -36,7 +50,9 @@ pub fn generate(
     let result = TokenStream::from_str(as_string.as_str()).unwrap(); */
 
     //Ok(ast.into_token_stream())
-    panic!("Debugging");
+    let result = quote::quote! { #(#result)* };
+
+    Ok(result.into())
 }
 
 fn extract_fn_name(content: &str) -> &str {
