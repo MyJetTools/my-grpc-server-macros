@@ -6,6 +6,7 @@ pub fn generate(
     _attr: TokenStream,
     input: TokenStream,
 ) -> Result<proc_macro::TokenStream, syn::Error> {
+    println!("input: {}", input.to_string());
     let mut as_string = input.to_string();
 
     let fn_name = extract_fn_name(as_string.as_str());
