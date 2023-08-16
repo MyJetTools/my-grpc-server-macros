@@ -8,13 +8,13 @@ pub fn generate(
     _attr: TokenStream,
     input: TokenStream,
 ) -> Result<proc_macro::TokenStream, syn::Error> {
-    let mut result = Vec::new();
+    let mut result: Vec<proc_macro2::TokenStream> = Vec::new();
 
     let mut fn_is_engaged = false;
     let mut fn_name = None;
 
     for token in input.into_iter() {
-        match token {
+        match &token {
             proc_macro::TokenTree::Ident(ident) => {
                 if fn_is_engaged {
                     fn_name = Some(ident.to_string());
@@ -27,7 +27,7 @@ pub fn generate(
             _ => {}
         }
 
-        result.push(token);
+        result.push(quote::quote!(token.span()));
     }
 
     println!("fn_name: {:?}", fn_name);
