@@ -1,8 +1,4 @@
-use std::str::FromStr;
-
 use proc_macro::TokenStream;
-use quote::ToTokens;
-use syn::DeriveInput;
 
 pub fn generate(
     _attr: TokenStream,
@@ -12,16 +8,29 @@ pub fn generate(
 
     let mut fn_is_engaged = false;
     let mut fn_name = None;
+    let mut injection_is_done = false;
 
     for token in input.into_iter() {
         match &token {
             proc_macro::TokenTree::Ident(ident) => {
-                if fn_is_engaged {
-                    fn_name = Some(ident.to_string());
-                    fn_is_engaged = false;
-                }
-                if ident.to_string().as_str() == "fn" {
-                    fn_is_engaged = true;
+                if !injection_is_done {
+                    if fn_is_engaged {
+                        fn_name = Some(ident.to_string());
+                        fn_is_engaged = false;
+                    } else if ident.to_string().as_str() == "fn" {
+                        fn_is_engaged = true;
+                    } else if let Some(fn_name) = &fn_name {
+                        if ident.to_string().as_str() == "{" {
+                            result.push(quote::quote! {
+                                let my_telemetry = my_grpc_extensions::get_telemetry(
+                                    &request.metadata(),
+                                    request.remote_addr(),
+                                    #fn_name,
+                                );
+                            });
+                            injection_is_done = true;
+                        }
+                    }
                 }
             }
             _ => {}
