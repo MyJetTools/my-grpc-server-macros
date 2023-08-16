@@ -77,8 +77,6 @@ fn inject_body(fn_name: &str, group: &Group) -> proc_macro2::TokenStream {
 
     as_str.insert_str(index, to_inject.to_string().as_str());
 
-    println!("After Injection: {}", as_str);
-
     match proc_macro2::TokenStream::from_str(as_str.as_str()) {
         Ok(token_stream) => token_stream,
         Err(_) => panic!(
