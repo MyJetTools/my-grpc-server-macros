@@ -8,8 +8,14 @@ pub fn generate(
     _attr: TokenStream,
     input: TokenStream,
 ) -> Result<proc_macro::TokenStream, syn::Error> {
+    let mut i = 0;
     for token in input.into_iter() {
         println!("token: {:#?}", token);
+        if i == 10 {
+            break;
+        }
+
+        i += 1;
     }
 
     /*
