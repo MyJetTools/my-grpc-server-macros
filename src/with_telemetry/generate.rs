@@ -1,14 +1,22 @@
 use std::str::FromStr;
 
 use proc_macro::TokenStream;
+use quote::ToTokens;
+use syn::DeriveInput;
 
 pub fn generate(
     _attr: TokenStream,
     input: TokenStream,
 ) -> Result<proc_macro::TokenStream, syn::Error> {
-    println!("input: {}", input.to_string());
-    let mut as_string = input.to_string();
+    let ast: DeriveInput = syn::parse(input).unwrap();
 
+    println!("ast: {:#?}", ast);
+
+    for token in ast.into_token_stream() {
+        println!("token: {:#?}", token);
+    }
+
+    /*
     let fn_name = extract_fn_name(as_string.as_str());
 
     let body_start = find_fn_body_start(as_string.as_str());
@@ -23,9 +31,10 @@ pub fn generate(
 
     println!("as_string: {}", as_string);
 
-    let result = TokenStream::from_str(as_string.as_str()).unwrap();
+    let result = TokenStream::from_str(as_string.as_str()).unwrap(); */
 
-    Ok(result)
+    //Ok(ast.into_token_stream())
+    panic!("Debugging");
 }
 
 fn extract_fn_name(content: &str) -> &str {
