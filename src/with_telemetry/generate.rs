@@ -1,5 +1,7 @@
 use proc_macro::Delimiter;
+use proc_macro::Group;
 use proc_macro::TokenStream;
+use quote::ToTokens;
 
 pub fn generate(
     _attr: TokenStream,
@@ -28,9 +30,9 @@ pub fn generate(
                 if !injection_is_done {
                     if let Some(fn_name) = &fn_name {
                         if let Delimiter::Brace = group.delimiter() {
-                            let group_as_text = group.to_string();
+                            inject_body(group);
 
-                            println!("Group: {}", group_as_text);
+                            //println!("Group: {}", group_as_text);
 
                             /*
                             result.push(quote::quote! {
@@ -81,35 +83,8 @@ pub fn generate(
     Ok(result.into())
 }
 
-fn extract_fn_name(content: &str) -> &str {
-    let fn_start_index = content.find("fn");
-    if fn_start_index.is_none() {
-        panic!("Can not find fn keyword");
+fn inject_body(group: &Group) {
+    for token in group.stream() {
+        println!("token: {:#?}", token);
     }
-
-    let fn_start_index = fn_start_index.unwrap();
-
-    println!("fn_start_index: {}", fn_start_index);
-
-    let fn_name_end = content.find("(");
-
-    if fn_name_end.is_none() {
-        panic!("Can not find start of function params");
-    }
-
-    let fn_name_end = fn_name_end.unwrap();
-    println!("fn_name_end: {}", fn_name_end);
-
-    content[fn_start_index + 2..fn_name_end].trim()
-}
-
-fn find_fn_body_start(content: &str) -> usize {
-    let fn_body_start = content.find("{");
-    if fn_body_start.is_none() {
-        panic!("Can not find start of function body");
-    }
-
-    let fn_body_start = fn_body_start.unwrap();
-
-    fn_body_start + 1
 }
