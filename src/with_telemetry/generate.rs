@@ -1,3 +1,4 @@
+use proc_macro::Delimiter;
 use proc_macro::TokenStream;
 
 pub fn generate(
@@ -16,13 +17,22 @@ pub fn generate(
                 let ident_string = ident.to_string();
                 if !injection_is_done {
                     if fn_is_engaged {
-                        fn_name = Some(ident_string.clone());
+                        fn_name = Some(ident_string);
                         fn_is_engaged = false;
                     } else if ident_string.as_str() == "fn" {
                         fn_is_engaged = true;
                     }
+                }
+            }
+            proc_macro::TokenTree::Group(group) => {
+                if !injection_is_done {
                     if let Some(fn_name) = &fn_name {
-                        if ident_string.as_str() == "{" {
+                        if let Delimiter::Brace = group.delimiter() {
+                            let group_as_text = group.to_string();
+
+                            println!("Group: {}", group_as_text);
+
+                            /*
                             result.push(quote::quote! {
                                 let my_telemetry = my_grpc_extensions::get_telemetry(
                                     &request.metadata(),
@@ -30,14 +40,13 @@ pub fn generate(
                                     #fn_name,
                                 );
                             });
+                             */
                             injection_is_done = true;
                         }
                     }
                 }
             }
-            proc_macro::TokenTree::Group(group) => {
-                println!("group: {:?}", group);
-            }
+
             _ => {}
         }
 
