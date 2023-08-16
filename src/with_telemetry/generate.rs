@@ -35,6 +35,9 @@ pub fn generate(
                     }
                 }
             }
+            proc_macro::TokenTree::Group(group) => {
+                println!("group: {:?}", group);
+            }
             _ => {}
         }
 
