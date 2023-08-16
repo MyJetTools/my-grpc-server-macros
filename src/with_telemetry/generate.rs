@@ -27,7 +27,10 @@ pub fn generate(
             _ => {}
         }
 
-        result.push(quote::quote!(token.span()));
+        let token_stream = TokenStream::from(token);
+        let token_stream: proc_macro2::TokenStream = token_stream.into();
+
+        result.push(token_stream);
     }
 
     println!("fn_name: {:?}", fn_name);
