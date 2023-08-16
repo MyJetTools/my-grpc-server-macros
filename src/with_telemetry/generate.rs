@@ -3,7 +3,6 @@ use std::str::FromStr;
 use proc_macro::Delimiter;
 use proc_macro::Group;
 use proc_macro::TokenStream;
-use quote::ToTokens;
 
 pub fn generate(
     _attr: TokenStream,
@@ -50,26 +49,6 @@ pub fn generate(
         result.push(token_stream);
     }
 
-    println!("fn_name: {:?}", fn_name);
-
-    /*
-    let fn_name = extract_fn_name(as_string.as_str());
-
-    let body_start = find_fn_body_start(as_string.as_str());
-
-    let text_to_insert = format!(
-        r#"let my_telemetry =
-    my_grpc_extensions::get_telemetry(&request.metadata(), request.remote_addr(), "{}");"#,
-        fn_name
-    );
-
-    as_string.insert_str(body_start, text_to_insert.as_str());
-
-    println!("as_string: {}", as_string);
-
-    let result = TokenStream::from_str(as_string.as_str()).unwrap(); */
-
-    //Ok(ast.into_token_stream())
     let result = quote::quote! { #(#result)* };
 
     Ok(result.into())
@@ -92,6 +71,8 @@ fn inject_body(fn_name: &str, group: &Group) -> proc_macro2::TokenStream {
             request.remote_addr(),
             #fn_name,
         );
+
+        let my_telemetry = my_telemetry.get_ctx();
     };
 
     as_str.insert_str(index, to_inject.to_string().as_str());
