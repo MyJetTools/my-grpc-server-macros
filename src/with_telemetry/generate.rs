@@ -35,6 +35,8 @@ fn extract_fn_name(content: &str) -> &str {
 
     let fn_start_index = fn_start_index.unwrap();
 
+    println!("fn_start_index: {}", fn_start_index);
+
     let fn_name_end = content.find("(");
 
     if fn_name_end.is_none() {
@@ -42,6 +44,7 @@ fn extract_fn_name(content: &str) -> &str {
     }
 
     let fn_name_end = fn_name_end.unwrap();
+    println!("fn_name_end: {}", fn_name_end);
 
     content[fn_start_index + 2..fn_name_end].trim()
 }
